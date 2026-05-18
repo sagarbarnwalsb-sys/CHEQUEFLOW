@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "firmName": { "type": "string", "description": "Full firm name or person name" },
+        "email": { "type": "string", "format": "email" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["firmName", "email", "createdAt"]
+    },
+    "Cheque": {
+      "title": "Cheque",
+      "description": "Details of a received cheque",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who owns this record" },
+        "bankName": { "type": "string" },
+        "customerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "chequeDateBS": { "type": "string", "description": "Date on the cheque in BS format (YYYY/MM/DD)" },
+        "receivedDateBS": { "type": "string", "description": "Date cheque was received in BS format (YYYY/MM/DD)" },
+        "contactNo": { "type": "string" },
+        "status": { "type": "string", "enum": ["BOUNCE", "CLEAR", "POSTDATED"] },
+        "remarks": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "bankName", "customerName", "amount", "chequeDateBS", "receivedDateBS", "contactNo", "status", "createdAt", "updatedAt"]
+    },
+    "Bank": {
+      "title": "Bank",
+      "description": "Stored bank details for easy entry",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "bankName": { "type": "string" },
+        "accountNumber": { "type": "string" },
+        "branch": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "bankName", "createdAt"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Stored customer details for easy entry",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "contactNo": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "customerName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/users/{userId}/cheques/{chequeId}": {
+      "schema": "Cheque",
+      "description": "Cheque records for a user"
+    },
+    "/users/{userId}/banks/{bankId}": {
+      "schema": "Bank",
+      "description": "Saved bank details for a user"
+    },
+    "/users/{userId}/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Saved customer details for a user"
+    }
+  }
+}
