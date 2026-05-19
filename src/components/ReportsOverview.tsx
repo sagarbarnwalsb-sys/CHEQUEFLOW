@@ -72,7 +72,6 @@ export const ReportsOverview: React.FC<ReportsOverviewProps> = ({ cheques }) => 
     return new Intl.NumberFormat('en-NP', { 
       style: 'currency', 
       currency: 'NPR', 
-      notation: 'compact',
       maximumFractionDigits: 1 
     }).format(val);
   };

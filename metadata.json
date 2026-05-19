@@ -1,5 +1,5 @@
 {
-  "name": "ChequeVault BS",
+  "name": "ChequeReport",
   "description": "Professional cheque tracking system with Bikram Sambat calendar support, status management, and secure Firebase authentication.",
   "requestFramePermissions": [],
   "majorCapabilities": [

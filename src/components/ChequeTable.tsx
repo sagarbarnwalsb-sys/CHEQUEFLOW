@@ -7,6 +7,7 @@ interface ChequeTableProps {
   cheques: Cheque[];
   onDelete: (id: string) => void;
   onEdit: (cheque: Cheque) => void;
+  onCustomerClick?: (name: string) => void;
 }
 
 const statusWeight = {
@@ -15,7 +16,7 @@ const statusWeight = {
   [ChequeStatus.CLEAR]: 2,
 };
 
-export const ChequeTable: React.FC<ChequeTableProps> = ({ cheques, onDelete, onEdit }) => {
+export const ChequeTable: React.FC<ChequeTableProps> = ({ cheques, onDelete, onEdit, onCustomerClick }) => {
   const sortedCheques = [...cheques].sort((a, b) => {
     const weightA = statusWeight[a.status];
     const weightB = statusWeight[b.status];
@@ -69,7 +70,12 @@ export const ChequeTable: React.FC<ChequeTableProps> = ({ cheques, onDelete, onE
                 <div className="font-semibold text-[13px]">{cheque.bankName}</div>
               </td>
               <td className="px-3 py-2.5 border-b border-dotted border-slate-200">
-                <div className="text-[13px] font-medium text-slate-900">{cheque.customerName || '-'}</div>
+                <button 
+                  onClick={() => onCustomerClick?.(cheque.customerName)}
+                  className="text-[13px] font-medium text-blue-600 hover:underline text-left transition-all"
+                >
+                  {cheque.customerName || '-'}
+                </button>
               </td>
               <td className="px-3 py-2.5 border-b border-dotted border-slate-200 whitespace-nowrap text-[13px] font-mono">
                 {cheque.chequeDateBS}

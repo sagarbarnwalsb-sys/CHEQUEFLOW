@@ -25,11 +25,17 @@ export default function App() {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [editingCheque, setEditingCheque] = useState<Cheque | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'entry' | 'banks' | 'reports'>('dashboard');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCheques = cheques.filter(c => 
+    c.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.bankName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const totalsByStatus = {
-    [ChequeStatus.BOUNCE]: cheques.filter(c => c.status === ChequeStatus.BOUNCE).reduce((sum, c) => sum + c.amount, 0),
-    [ChequeStatus.CLEAR]: cheques.filter(c => c.status === ChequeStatus.CLEAR).reduce((sum, c) => sum + c.amount, 0),
-    [ChequeStatus.POSTDATED]: cheques.filter(c => c.status === ChequeStatus.POSTDATED).reduce((sum, c) => sum + c.amount, 0),
+    [ChequeStatus.BOUNCE]: filteredCheques.filter(c => c.status === ChequeStatus.BOUNCE).reduce((sum, c) => sum + c.amount, 0),
+    [ChequeStatus.CLEAR]: filteredCheques.filter(c => c.status === ChequeStatus.CLEAR).reduce((sum, c) => sum + c.amount, 0),
+    [ChequeStatus.POSTDATED]: filteredCheques.filter(c => c.status === ChequeStatus.POSTDATED).reduce((sum, c) => sum + c.amount, 0),
   };
 
   useEffect(() => {
@@ -196,7 +202,7 @@ export default function App() {
             <div className="bg-blue-600 p-1.5 rounded text-white">
               <Wallet size={18} />
             </div>
-            <h1 className="text-xl font-bold tracking-tight">ChequeFlow BS</h1>
+            <h1 className="text-xl font-bold tracking-tight">ChequeReport</h1>
           </div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Bikram Sambat Ledger</p>
         </div>
@@ -270,8 +276,35 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-[60px] bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
-          <div>
-            <h2 className="text-lg font-bold tracking-tight capitalize">{activeTab.replace('-', ' ')}</h2>
+          <div className="flex items-center gap-4 flex-1">
+            <h2 className="text-lg font-bold tracking-tight capitalize shrink-0">{activeTab.replace('-', ' ')}</h2>
+            
+            {(activeTab === 'dashboard' || activeTab === 'entry') && (
+              <div className="relative max-w-md w-full">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search customer or bank..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-1.5 border border-slate-200 rounded-md leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
             {(activeTab === 'dashboard' || activeTab === 'entry') && (
@@ -298,23 +331,25 @@ export default function App() {
         {/* Stats Summary Bar */}
         <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-12 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Overall:</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              {searchQuery ? `Filtered Status (${searchQuery}):` : 'Overall:'}
+            </span>
             <span className="text-sm font-bold text-slate-900">
-              {new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', notation: 'compact' }).format(cheques.reduce((acc, curr) => acc + curr.amount, 0))}
+              {new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR' }).format(filteredCheques.reduce((acc, curr) => acc + curr.amount, 0))}
             </span>
           </div>
           <div className="flex items-center gap-8">
              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-red-600">
                 <div className="w-2 h-2 rounded-full bg-red-600"></div>
-                <span>Bounce: {new Intl.NumberFormat('en-NP', { notation: 'compact' }).format(totalsByStatus[ChequeStatus.BOUNCE])}</span>
+                <span>Bounce: {new Intl.NumberFormat('en-NP').format(totalsByStatus[ChequeStatus.BOUNCE])}</span>
               </div>
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-blue-600">
                 <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                <span>Postdated: {new Intl.NumberFormat('en-NP', { notation: 'compact' }).format(totalsByStatus[ChequeStatus.POSTDATED])}</span>
+                <span>Postdated: {new Intl.NumberFormat('en-NP').format(totalsByStatus[ChequeStatus.POSTDATED])}</span>
               </div>
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-green-600">
                 <div className="w-2 h-2 rounded-full bg-green-600"></div>
-                <span>Cleared: {new Intl.NumberFormat('en-NP', { notation: 'compact' }).format(totalsByStatus[ChequeStatus.CLEAR])}</span>
+                <span>Cleared: {new Intl.NumberFormat('en-NP').format(totalsByStatus[ChequeStatus.CLEAR])}</span>
               </div>
           </div>
         </div>
@@ -342,7 +377,7 @@ export default function App() {
                     <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Total Liquidity</h3>
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold text-blue-600">
-                        {new Intl.NumberFormat('en-NP', { notation: 'compact' }).format(totalsByStatus[ChequeStatus.CLEAR] + totalsByStatus[ChequeStatus.POSTDATED])}
+                        {new Intl.NumberFormat('en-NP').format(totalsByStatus[ChequeStatus.CLEAR] + totalsByStatus[ChequeStatus.POSTDATED])}
                       </span>
                       <span className="text-xs text-slate-400">NPR</span>
                     </div>
@@ -358,12 +393,13 @@ export default function App() {
 
                 <div className="flex-1 bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col overflow-hidden">
                   <ChequeTable 
-                    cheques={cheques} 
+                    cheques={filteredCheques} 
                     onDelete={handleDeleteCheque}
                     onEdit={(c) => {
                       setEditingCheque(c);
                       setShowChequeForm(true);
                     }}
+                    onCustomerClick={setSearchQuery}
                   />
                 </div>
               </motion.div>
@@ -378,12 +414,13 @@ export default function App() {
                 className="flex-1 bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col overflow-hidden"
               >
                 <ChequeTable 
-                  cheques={cheques} 
+                  cheques={filteredCheques} 
                   onDelete={handleDeleteCheque}
                   onEdit={(c) => {
                     setEditingCheque(c);
                     setShowChequeForm(true);
                   }}
+                  onCustomerClick={setSearchQuery}
                 />
               </motion.div>
             )}
